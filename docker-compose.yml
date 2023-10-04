@@ -1,6 +1,7 @@
 version: '3.8'
 services:
-  ros:
+  ros-desktop:
+    container-name: ros-desktop
     image: osrf/ros:humble-desktop
     environment:
       - DISPLAY=${DISPLAY}
