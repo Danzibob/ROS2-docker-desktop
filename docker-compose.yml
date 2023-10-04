@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  ros:
+    image: osrf/ros:humble-desktop
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - ${PWD}:/workspace:rw
+    command: tail -f /dev/null
