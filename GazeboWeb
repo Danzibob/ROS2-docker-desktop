@@ -1,0 +1,43 @@
+# Use the specified gazebo image as the base image
+FROM gazebo:libgazebo11
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install other dependencies
+RUN apt-get update && apt-get install -y libjansson-dev libboost-dev imagemagick libtinyxml-dev mercurial cmake build-essential curl git
+
+ENV NVM_DIR "/root/.nvm"
+# This is a heinously old node version but apparently gazebo web requires it
+ENV NODE_VERSION 8.17.0
+
+# Install nvm, nodejs, and npm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash \
+    && . $NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use default
+
+ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
+ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH 
+
+# Clone the GzWeb repository and switch to the specified branch
+RUN cd ~ && git clone https://github.com/osrf/gzweb && \
+    cd ~/gzweb && \
+    git checkout gzweb_1.4.1
+
+# Source Gazebo's setup file and run the deploy script
+RUN . /usr/share/gazebo/setup.sh\
+    && . $NVM_DIR/nvm.sh \
+    && cd ~/gzweb\
+    && npm run deploy --- -m
+
+# Expose the default GzWeb port
+EXPOSE 8080
+
+# Set the command to start GzWeb when the container is run
+CMD /bin/bash -c ". $NVM_DIR/nvm.sh && \
+    source /usr/share/gazebo/setup.sh && \
+    gzserver & \
+    cd ~/gzweb && \
+    npm start &"
