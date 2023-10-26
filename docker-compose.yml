@@ -1,19 +1,16 @@
 version: '3.8'
 services:
-  ros-desktop:
-    image: osrf/ros:humble-desktop
+  gazebo-web:
+    build:
+      context: .
+      dockerfile: GazeboWeb
+    image: gazebo-web-image:latest
     environment:
       - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1
     volumes:
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
       - ./:/workspace:rw
-    command: tail -f /dev/null
-  gazebo:
-    build:
-      context: .
-      dockerfile: GazeboWeb
-    image: gazebo-web-image:latest
-    command: tail -f /dev/null
+    command: "/root/start_gzserver.sh"
     ports:
       - "8080:8080"

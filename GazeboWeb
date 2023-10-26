@@ -1,17 +1,37 @@
 # Use the specified gazebo image as the base image
-FROM gazebo:libgazebo11
+# FROM gazebo:libgazebo11
+FROM osrf/ros:humble-desktop
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install other dependencies
-RUN apt-get update && apt-get install -y libjansson-dev libboost-dev imagemagick libtinyxml-dev mercurial cmake build-essential curl git
+# Install gazebo-classic
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gazebo \
+    && rm -rf /var/lib/apt/lists/*
 
+# Add ROS2 package repos & install ros2 gazebo plugins
+RUN apt-get install -y curl gnupg2 lsb-release
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/ros2.list \
+    && apt-get update \
+    && apt-get install -y ros-humble-gazebo-ros-pkgs
+
+# Install dependencies for building gzweb
+RUN apt-get update && apt-get install -y \
+    libjansson-dev \
+    libboost-dev \
+    imagemagick \
+    libtinyxml-dev \
+    mercurial \
+    cmake \
+    build-essential \
+    git
+
+# Install nvm, nodejs, and npm
 ENV NVM_DIR "/root/.nvm"
 # This is a heinously old node version but apparently gazebo web requires it
 ENV NODE_VERSION 8.17.0
-
-# Install nvm, nodejs, and npm
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash \
     && . $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
@@ -27,17 +47,13 @@ RUN cd ~ && git clone https://github.com/osrf/gzweb && \
     git checkout gzweb_1.4.1
 
 # Source Gazebo's setup file and run the deploy script
-RUN . /usr/share/gazebo/setup.sh\
+RUN . /usr/share/gazebo/setup.sh \
     && . $NVM_DIR/nvm.sh \
     && cd ~/gzweb\
     && npm run deploy --- -m
 
+# Copy the startup script into the container
+COPY start_gzserver.sh /root/start_gzserver.sh
+
 # Expose the default GzWeb port
 EXPOSE 8080
-
-# Set the command to start GzWeb when the container is run
-CMD /bin/bash -c ". $NVM_DIR/nvm.sh && \
-    source /usr/share/gazebo/setup.sh && \
-    gzserver & \
-    cd ~/gzweb && \
-    npm start &"
