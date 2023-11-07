@@ -1,1 +1,1 @@
-docker exec -it $(docker ps -lq) bash -c "cd /workspace && source /opt/ros/humble/setup.bash && bash"
+docker exec -it $(docker ps -lqf "name=ros-humble-gz" ) bash -c "cd /workspace && bash"
