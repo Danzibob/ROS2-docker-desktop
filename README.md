@@ -4,7 +4,8 @@ This repository provides a docker-compose file and a set of scripts to run ROS i
 ## Prerequisites
 - docker
 - docker-compose
-- A linux device running the X display server
+- A Linux device running the X display server
+- The [Xhost](https://wiki.archlinux.org/title/Xhost) program
 
 ## Instructions
 1. Copy the scripts in this repository into your project directory
