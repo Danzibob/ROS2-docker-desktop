@@ -26,12 +26,16 @@ RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o
     ros-humble-turtlebot3 \
     ros-humble-turtlebot3-gazebo
 
-COPY terminal_env.sh /root/terminal_env.sh
-RUN cat /root/terminal_env.sh >> ~/.bashrc
-
 # Install the turtlebot3 simulation package
 RUN . /usr/share/gazebo/setup.sh && . /opt/ros/humble/setup.sh \
     && mkdir /root/turtlebot3_ws \
     && cd /root/turtlebot3_ws \
     && git clone -b humble-devel https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git src \
     && colcon build --symlink-install
+
+# Load ROS shell environment by default
+RUN chmod 0755 /usr/share/gazebo/setup.sh /opt/ros/humble/setup.bash
+RUN echo 'source /usr/share/gazebo/setup.sh\n\
+source /opt/ros/humble/setup.bash\n\
+export ROS_DOMAIN_ID=30 #TURTLEBOT3\n\
+export TURTLEBOT3_MODEL=waffle_pi' >> ~/.bashrc
