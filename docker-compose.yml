@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  ros-humble-gz:
+  ros-humble:
     build:
       context: .
       dockerfile: ROSHumblegz.Dockerfile
@@ -15,6 +15,7 @@ services:
       - /dev/dri:/dev/dri
     group_add:
       - video
-    command: tail -f /dev/null
+    command: sleep infinity
     ports:
       - "8080:8080"
+    working_dir: /workspace

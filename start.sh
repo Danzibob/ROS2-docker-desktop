@@ -1,27 +1,27 @@
 #!/bin/bash
 
 # Check if the ROS-desktop container is already running; start if not
-container_id=$(docker ps -qf "name=ros-humble-gz")
+container_id=$(docker-compose ps -q)
 if [ -z "$container_id" ]; then
   echo "No gazebo-web container is running. Starting a new one..."
   docker-compose up -d
-  container_id=$(docker ps -lq)
-  
+  container_id=$(docker-compose ps -q)
+
   # Grant permissions for the X server socket
-  xhost +local:$container_id
+  xhost "+local:$container_id"
 
   # Open an interactive terminal in the container
   ./new_terminal.sh
   # Continues once the interactive session ends
 
   echo "Main terminal session closed, stopping and cleaning up container..."
-  
+
   # stop container & revoke xhost perms
-  docker stop -t 0 $container_id
-  xhost -local:$container_id
-  
+  docker-compose kill
+  xhost "-local:$container_id"
+
   echo "Done!"
-  
+
 else
   # Open a terminal session in the existing container
   echo "A ros-desktop container is already running with ID: $container_id"
