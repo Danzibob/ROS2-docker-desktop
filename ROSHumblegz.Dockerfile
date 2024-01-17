@@ -11,10 +11,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Add ROS2 package repos & install ros2 gazebo plugins
-RUN apt-get install -y curl gnupg2 lsb-release
-RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/ros2.list \
-    && apt-get update \
+#RUN apt-get install -y curl gnupg2 lsb-release
+RUN apt-get update \
     && apt-get install -y \
     ros-humble-gazebo* \
     ros-humble-cartographer \
